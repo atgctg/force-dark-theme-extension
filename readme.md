@@ -14,3 +14,4 @@ This chrome extension allows you to toggle dark mode on your current tab by inse
 
 1. Click on the extension icon located on the toolbar
 2. It will toggle the dark mode on/off
+3. Set a keyboard shortcut on `chrome://extensions/shortcuts`
