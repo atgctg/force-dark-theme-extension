@@ -1,5 +1,5 @@
 async function getForcedDarkModeTabIds() {
-  let { forcedDarkModeTabIds } = await chrome.storage.sync.get(
+  let { forcedDarkModeTabIds } = await chrome.storage.local.get(
     'forcedDarkModeTabIds'
   )
   if (!forcedDarkModeTabIds) forcedDarkModeTabIds = []
@@ -7,7 +7,7 @@ async function getForcedDarkModeTabIds() {
 }
 
 function setForcedDarkModeTabIds(forcedDarkModeTabIds) {
-  chrome.storage.sync.set({ forcedDarkModeTabIds })
+  chrome.storage.local.set({ forcedDarkModeTabIds })
 }
 
 function setIcon(on = true) {
