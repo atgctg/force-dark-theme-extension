@@ -1,47 +1,53 @@
-async function getForcedDarkModeTabIds() {
-  let { forcedDarkModeTabIds } = await chrome.storage.local.get(
-    'forcedDarkModeTabIds'
+async function getForcedDarkModeUrls() {
+  let { forcedDarkModeUrls } = await chrome.storage.local.get(
+    'forcedDarkModeUrls'
   )
-  if (!forcedDarkModeTabIds) forcedDarkModeTabIds = []
-  return forcedDarkModeTabIds
+  if (!forcedDarkModeUrls) forcedDarkModeUrls = []
+  return forcedDarkModeUrls
 }
 
-function setForcedDarkModeTabIds(forcedDarkModeTabIds) {
-  chrome.storage.local.set({ forcedDarkModeTabIds })
-}
-
-function setIcon(on = true) {
-  chrome.action.setIcon({
-    path: on ? 'icons/on.png' : 'icons/off.png',
-  })
+function setForcedDarkModeUrls(forcedDarkModeUrls) {
+  chrome.storage.local.set({ forcedDarkModeUrls })
 }
 
 chrome.action.onClicked.addListener(async (tab) => {
-  const forcedDarkModeTabIds = await getForcedDarkModeTabIds()
-  if (!forcedDarkModeTabIds.includes(tab.id)) {
+  const forcedDarkModeUrls = await getForcedDarkModeUrls()
+  const urlOrigin = new URL(tab.url).origin
+
+  if (!forcedDarkModeUrls.includes(urlOrigin)) {
     chrome.scripting.insertCSS({
       target: { tabId: tab.id },
       files: ['dark-mode.css'],
     })
 
-    setForcedDarkModeTabIds([...forcedDarkModeTabIds, tab.id])
-    setIcon(true)
+    setForcedDarkModeUrls([...forcedDarkModeUrls, urlOrigin])
   } else {
     chrome.scripting.removeCSS({
       target: { tabId: tab.id },
       files: ['dark-mode.css'],
     })
 
-    setForcedDarkModeTabIds(forcedDarkModeTabIds.filter((id) => id !== tab.id))
-    setIcon(false)
+    setForcedDarkModeUrls(forcedDarkModeUrls.filter((url) => url !== urlOrigin))
   }
 })
 
-chrome.tabs.onActivated.addListener(async ({ tabId }) => {
-  const forcedDarkModeTabIds = await getForcedDarkModeTabIds()
-  if (forcedDarkModeTabIds.includes(tabId)) {
-    setIcon(true)
-  } else {
-    setIcon(false)
+chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+  if (tab.url?.startsWith('chrome://')) return
+  console.log('tab updated', tabId, changeInfo, tab)
+  if (!tab || !tab.url) return
+  if (changeInfo.status === 'loading') {
+    const forcedDarkModeUrls = await getForcedDarkModeUrls()
+    const tabUrlOrigin = new URL(tab.url).origin
+    if (forcedDarkModeUrls.includes(tabUrlOrigin)) {
+      chrome.scripting.insertCSS({
+        target: { tabId },
+        files: ['dark-mode.css'],
+      })
+    } else {
+      chrome.scripting.removeCSS({
+        target: { tabId: tab.id },
+        files: ['dark-mode.css'],
+      })
+    }
   }
 })
