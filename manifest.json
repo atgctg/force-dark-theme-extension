@@ -3,7 +3,7 @@
   "name": "Force Dark Theme",
   "version": "1.0",
   "permissions": ["storage", "scripting", "activeTab", "tabs"],
-  "host_permissions": ["<all_urls>"],
+  "host_permissions": ["https://*/*"],
   "action": {
     "default_title": "Force Dark Theme"
   },
