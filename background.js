@@ -11,6 +11,8 @@ function setForcedDarkModeUrls(forcedDarkModeUrls) {
 }
 
 chrome.action.onClicked.addListener(async (tab) => {
+  if (tab.url?.startsWith('chrome://')) return
+
   const forcedDarkModeUrls = await getForcedDarkModeUrls()
   const urlOrigin = new URL(tab.url).origin
 
@@ -33,6 +35,7 @@ chrome.action.onClicked.addListener(async (tab) => {
 
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   if (tab.url?.startsWith('chrome://')) return
+
   console.log('tab updated', tabId, changeInfo, tab)
   if (!tab || !tab.url) return
   if (changeInfo.status === 'loading') {
