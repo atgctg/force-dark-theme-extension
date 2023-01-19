@@ -1,3 +1,8 @@
+function isDisallowedUrl(tab) {
+  const disallowedUrls = ['chrome://', 'https://chrome.google.com']
+  return disallowedUrls.some((url) => tab.url?.startsWith(url))
+}
+
 async function getForcedDarkModeUrls() {
   let { forcedDarkModeUrls } = await chrome.storage.local.get(
     'forcedDarkModeUrls'
@@ -11,7 +16,7 @@ function setForcedDarkModeUrls(forcedDarkModeUrls) {
 }
 
 chrome.action.onClicked.addListener(async (tab) => {
-  if (tab.url?.startsWith('chrome://')) return
+  if (isDisallowedUrl(tab)) return
 
   const forcedDarkModeUrls = await getForcedDarkModeUrls()
   const urlOrigin = new URL(tab.url).origin
@@ -34,7 +39,7 @@ chrome.action.onClicked.addListener(async (tab) => {
 })
 
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
-  if (tab.url?.startsWith('chrome://')) return
+  if (isDisallowedUrl(tab)) return
 
   console.log('tab updated', tabId, changeInfo, tab)
   if (!tab || !tab.url) return
