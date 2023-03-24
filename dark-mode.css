@@ -8,6 +8,8 @@
 
     /* Some pages do not have a background color set at all. */
     background-color: #eee;
+
+    transition: filter 0.2s ease-in-out, background-color 0.2s ease-in-out;
   }
 
   /* Do not invert media (revert the invert). */
